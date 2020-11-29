@@ -1868,6 +1868,20 @@ static void PatchCorruptProfile(const char *name,StringInfo *profile)
               SetStringInfoLength(profile,length);
             }
         }
+
+      p = GetStringInfoDatum(profile);
+      if (p[0] == '?') {
+        size_t new_length = 1;
+        StringInfo *fixed_profile = AcquireStringInfo(new_length);
+        if (fixed_profile != (StringInfo*)NULL) {
+          SetStringInfoDatum(fixed_profile, (const unsigned char*)"<");
+          ConcatenateStringInfo(fixed_profile, profile);
+          SetStringInfoLength(profile, GetStringInfoLength(fixed_profile));
+          SetStringInfo(profile, fixed_profile);
+          fixed_profile = DestroyStringInfo(fixed_profile);
+        }
+      }
+
       return;
     }
   if (LocaleCompare(name,"exif") == 0)
